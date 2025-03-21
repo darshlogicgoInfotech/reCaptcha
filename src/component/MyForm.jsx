@@ -34,7 +34,7 @@ const MyForm = () => {
       <div role="region" aria-label="captcha verification">
         <ReCAPTCHA
           ref={captchaRef}
-          sitekey="6Lciq_sqAAAAACCjCZFUl4vq294MRJKJ2DpYNtmJ"
+          sitekey="6LdbrPsqAAAAAIC9a2Cy9hBvQRa5oiZMssx2RwGj"
           onChange={setToken}
           hl={language}
           theme="light"
