@@ -1,9 +1,10 @@
 import React, { useState, useRef } from "react";
-import ReCAPTCHA from "react-google-recaptcha";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
 
 const MyForm = () => {
   const [token, setToken] = useState("");
   const [language, setLanguage] = useState("en");
+  const [useAudio, setUseAudio] = useState(false);
   const captchaRef = useRef(null);
 
   const languages = [
@@ -22,13 +23,16 @@ const MyForm = () => {
     }
   };
 
-  const handleLanguageChange = (e) => {
-    setLanguage(e.target.value);
-    // Reset captcha when language changes
+  const resetCaptcha = () => {
     if (captchaRef.current) {
-      captchaRef.current.reset();
-      setToken("");
+      captchaRef.current.resetCaptcha();
     }
+    setToken("");
+  };
+
+  const toggleAudioMode = () => {
+    setUseAudio(!useAudio);
+    resetCaptcha();
   };
 
   return (
@@ -51,7 +55,7 @@ const MyForm = () => {
           <select 
             id="language" 
             value={language} 
-            onChange={handleLanguageChange}
+            onChange={(e) => setLanguage(e.target.value)}
             style={{ padding: '5px' }}
             aria-label="Select language for captcha"
           >
@@ -63,22 +67,51 @@ const MyForm = () => {
           </select>
         </div>
 
-        <p style={{ 
-          color: '#666', 
-          fontSize: '14px', 
-          marginBottom: '15px' 
-        }}>
-          For audio verification, click the headphone icon in the bottom right corner of the CAPTCHA.
-        </p>
+        {/* Accessibility Options */}
+        <div style={{ marginBottom: '15px' }}>
+          <button
+            type="button"
+            onClick={toggleAudioMode}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: useAudio ? '#4CAF50' : '#f0f0f0',
+              color: useAudio ? 'white' : 'black',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+            aria-pressed={useAudio}
+          >
+            <span role="img" aria-label="headphones icon" style={{ fontSize: '20px' }}>
+              🎧
+            </span>
+            {useAudio ? 'Audio Mode Active' : 'Enable Audio Mode'}
+          </button>
+          <p style={{ 
+            color: '#666', 
+            fontSize: '14px', 
+            marginTop: '8px' 
+          }}>
+            {useAudio 
+              ? "Audio mode is enabled. You will receive an audio challenge." 
+              : "Click the button above to enable audio verification for accessibility."}
+          </p>
+        </div>
       </div>
       
       <div role="region" aria-label="captcha verification">
-        <ReCAPTCHA
+        <HCaptcha
           ref={captchaRef}
-          sitekey="6LfmZ_sqAAAAAOOWcmv-Es9xdRW-SQKhoe1jyWof"
-          onChange={setToken}
-          hl={language}
+          sitekey="b4d4f3a0-a8e0-4880-955c-6b8a4b98d028"
+          onVerify={setToken}
+          languageOverride={language}
           theme="light"
+          size="normal"
+          a11yChallenge={useAudio}
+          tabindex="0"
           aria-label="Human verification captcha"
         />
       </div>
